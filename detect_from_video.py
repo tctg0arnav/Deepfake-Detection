@@ -55,7 +55,7 @@ def get_boundingbox(face, width, height, scale=1.3, minsize=None):
     return x1, y1, size_bb
 
 
-def preprocess_image(image, cuda=True):
+def preprocess_image(image, cuda=False):
     """
     Preprocesses the image such that it can be fed into our network.
     During this process we envoke PIL to cast it into a PIL image.
@@ -77,7 +77,7 @@ def preprocess_image(image, cuda=True):
     return preprocessed_image
 
 
-def predict_with_model(image, model, post_function=nn.Softmax(dim=1), cuda=True):
+def predict_with_model(image, model, post_function=nn.Softmax(dim=1), cuda=False):
     """
     Predicts the label of an input image. Preprocesses the input image and
     casts it to cuda if required
@@ -103,7 +103,7 @@ def predict_with_model(image, model, post_function=nn.Softmax(dim=1), cuda=True)
 
 
 def test_full_image_network(
-    video_path, model_path, output_path, start_frame=0, end_frame=None, cuda=True
+    video_path, model_path, output_path, start_frame=0, end_frame=None, cuda=False
 ):
     """
     Reads a video and evaluates a subset of frames with the a detection network
@@ -134,7 +134,7 @@ def test_full_image_network(
 
     # Load model
     model = model_selection(modelname="xception", num_out_classes=2, dropout=0.5)
-    model.load_state_dict(torch.load(model_path))
+    model.load_state_dict(torch.load(model_path), map_location=torch.device("cpu"))
     if isinstance(model, torch.nn.DataParallel):
         model = model.module
     if cuda:
